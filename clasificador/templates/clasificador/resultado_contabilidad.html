@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganancia Estimada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-emerald-950 min-h-screen text-white">
+
+<div class="container mx-auto px-6 py-16 max-w-3xl text-center">
+    <h1 class="text-5xl font-bold mb-4">💰 Estimación de Ganancia</h1>
+    <p class="text-emerald-400 text-2xl mb-10">{{ registro.objeto }}</p>
+
+    <div class="bg-slate-800/90 backdrop-blur-xl rounded-3xl p-12">
+        <div class="text-6xl font-bold text-emerald-400 mb-8">
+            Bs {{ ganancia }}
+        </div>
+        
+        <p class="text-2xl mb-6">Peso estimado: <strong>{{ peso_total }} kg</strong></p>
+
+        {% if tipo == 'botella' %}
+        <p class="text-xl">Cantidad: <strong>{{ cantidad }} botellas</strong></p>
+        {% endif %}
+
+        <div class="mt-10 pt-8 border-t border-slate-600">
+            <a href="{% url 'home' %}" 
+               class="inline-block bg-emerald-600 hover:bg-emerald-700 px-10 py-5 rounded-2xl text-xl font-bold">
+                Clasificar Otro Residuo →
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

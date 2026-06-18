@@ -1,0 +1,8 @@
+django
+google-generativeai
+opencv-python
+Pillow
+pyttsx3
+SpeechRecognition
+pyaudio
+openpyxl

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Externa - EcoClasificador</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0d1117; color: #e2e8f0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; position: relative; }
+        .btn-back { position: fixed; top: 1.25rem; left: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.04); border: 1px solid #1e2d3d; color: #94a3b8; padding: 0.45rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; z-index: 50; }
+        .btn-back:hover { background: #1e2d3d; color: #ffffff; border-color: #334155; }
+        .site-header { width: 100%; padding: 2.5rem 1rem 2rem; text-align: center; }
+        .logo-row { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .logo-icon { font-size: 2.4rem; line-height: 1; display: flex; align-items: center; }
+        .logo-text { font-size: 2.6rem; font-weight: 800; color: #ffffff; letter-spacing: -0.03em; }
+        .logo-sub { font-size: 1.05rem; color: #10b981; font-weight: 500; letter-spacing: 0.01em; }
+        .module-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.35rem 1rem; border-radius: 999px; margin-bottom: 1.5rem; }
+        .main-card { background: #161b22; border: 1px solid #1e2d3d; border-radius: 1.25rem; padding: 2.5rem 2rem; width: 100%; max-width: 860px; margin: 0 1rem 3rem; text-align: center; }
+        .card-section-title { font-size: 1rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; text-align: left; }
+        .card-section-title::after { content: ''; flex: 1; height: 1px; background: #1e2d3d; }
+        #instruccion { font-size: 1.4rem; font-weight: 700; color: #ffffff; text-align: center; margin-bottom: 1.5rem; min-height: 2rem; transition: color 0.3s; }
+        .btn-green { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; border: none; padding: 1rem 2rem; border-radius: 0.75rem; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: all 0.25s; box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        .btn-green:hover { background: linear-gradient(135deg, #047857 0%, #059669 100%); box-shadow: 0 0 20px rgba(16,185,129,0.25); transform: translateY(-1px); }
+        .media-container { display: flex; justify-content: center; align-items: flex-start; gap: 1.5rem; margin: 1.5rem 0; flex-wrap: wrap; }
+        .video-wrapper { position: relative; display: none; border-radius: 0.75rem; overflow: hidden; border: 2px solid #1e2d3d; }
+        #videoElement { width: 100%; max-width: 420px; border-radius: 0.625rem; background-color: #0d1117; transform: scaleX(-1); display: block; }
+        #zona-captura { position: absolute; top: 0; right: 0; width: 40%; height: 50%; border-left: 2px dashed #ef4444; border-bottom: 2px dashed #ef4444; border-bottom-left-radius: 0.5rem; z-index: 5; transition: border-color 0.3s; }
+        #foto-preview { display: none; width: 100%; max-width: 300px; border-radius: 0.75rem; border: 2px solid #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+        .status-panel { margin-top: 1.5rem; padding: 1rem 1.25rem; background: #0d1117; border: 1px solid #1e2d3d; border-radius: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: #94a3b8; text-align: left; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; transition: all 0.3s; }
+        #estado-sensores { color: #f59e0b; font-weight: 600; transition: color 0.3s; }
+        .keyboard-hint { position: fixed; bottom: 1.5rem; left: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #10b981; font-size: 0.8rem; font-weight: 600; padding: 0.45rem 1rem; border-radius: 999px; }
+        kbd { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); border-radius: 4px; padding: 0 5px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <a href="/" class="btn-back">← Volver</a>
+    <header class="site-header">
+        <div class="logo-row">
+            <span class="logo-icon">♻️</span>
+            <span class="logo-text">EcoClasificador</span>
+        </div>
+        <p class="logo-sub">Inteligencia Artificial para el Medio Ambiente</p>
+    </header>
+    <main style="width:100%; display:flex; flex-direction:column; align-items:center; padding: 0 1rem;">
+        <div class="module-badge">📡 Módulo de Ayuda Externa</div>
+        <div class="main-card">
+            <div class="card-section-title">Control de turno</div>
+            <h2 id="instruccion">Iniciar turno</h2>
+            <div class="media-container">
+                <div class="video-wrapper" id="videoWrapper">
+                    <video id="videoElement" autoplay playsinline></video>
+                    <div id="zona-captura"></div>
+                </div>
+                <img id="foto-preview" alt="Captura">
+            </div>
+            <canvas id="canvasElement" style="display:none;"></canvas>
+            <form id="formOculto" method="post" action="{% url 'clasificar_imagen' %}" enctype="multipart/form-data" style="display:none;">
+                {% csrf_token %}
+                <input type="file" name="imagen" id="imagenOculta">
+            </form>
+            <button id="btnIniciar" class="btn-green">▶ INICIAR TURNO</button>
+            <div class="status-panel">
+                <div class="status-dot" id="statusDot"></div>
+                <span class="status-label">Estado:</span>
+                <span id="estado-sensores">Apagados</span>
+            </div>
+        </div>
+    </main>
+    <div class="keyboard-hint">
+        ⌨️ Atajos: <kbd>F+J</kbd> Iniciar/Parar | <kbd>F</kbd> Voz | <kbd>J</kbd> Gestos
+    </div>
+    <script>
+        const video = document.getElementById('videoElement'), btnIniciar = document.getElementById('btnIniciar');
+        const estadoSensores = document.getElementById('estado-sensores'), instruccion = document.getElementById('instruccion');
+        const zonaCapturaUI = document.getElementById('zona-captura'), statusDot = document.getElementById('statusDot');
+        const canvas = document.getElementById('canvasElement'), preview = document.getElementById('foto-preview');
+        
+        let turnoActivo = false, sistemaSaturado = false, envioPendiente = null;
+        let vozActiva = false, manosActivas = false, keys = {};
+        let lastImageData = null, zonaArmada = false, framesCalmados = 0;
+
+        function setStatus(text, color, dotColor) {
+            estadoSensores.innerText = text; estadoSensores.style.color = color;
+            statusDot.style.background = dotColor; statusDot.style.boxShadow = `0 0 6px ${dotColor}`;
+        }
+
+        const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        reconocimiento.continuous = true; reconocimiento.lang = 'es-ES';
+        reconocimiento.onresult = (event) => {
+            const comando = event.results[event.results.length - 1][0].transcript.toLowerCase();
+            if(comando.includes("capturar")) ejecutarCaptura();
+        };
+
+        function toggleVoz() {
+            if(!turnoActivo) return;
+            vozActiva = !vozActiva;
+            if(vozActiva) { reconocimiento.start(); setStatus("Voz Activa 🎙️", "#10b981", "#10b981"); }
+            else { reconocimiento.stop(); setStatus("Voz Apagada", "#94a3b8", "#94a3b8"); }
+        }
+
+        function toggleManos() {
+            if(!turnoActivo) return;
+            manosActivas = !manosActivas;
+            if(manosActivas) { setStatus("Gestos Activos ✋", "#3b82f6", "#3b82f6"); procesarMovimiento(); }
+            else { setStatus("Gestos Apagados", "#94a3b8", "#94a3b8"); }
+        }
+
+        async function ejecutarCaptura() {
+            if (sistemaSaturado) return;
+            sistemaSaturado = true;
+            zonaArmada = false;
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            context.save(); context.scale(-1, 1); context.drawImage(video, canvas.width * -1, 0, canvas.width, canvas.height); context.restore();
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            preview.src = dataUrl; preview.style.display = 'block';
+            instruccion.innerText = "📸 CLASIFICANDO...";
+            setStatus("Enviando (F+J para cancelar)", "#10b981", "#10b981");
+            envioPendiente = setTimeout(async () => {
+                const res = await fetch(dataUrl); const blob = await res.blob();
+                const file = new File([blob], "captura.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer(); dataTransfer.items.add(file);
+                document.getElementById('imagenOculta').files = dataTransfer.files;
+                document.getElementById('formOculto').submit();
+            }, 1500);
+        }
+
+        function procesarMovimiento() {
+            if (!turnoActivo || !manosActivas || sistemaSaturado) return;
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            const w = 64, h = 48; canvas.width = w; canvas.height = h;
+            context.save(); context.scale(-1, 1); context.drawImage(video, w * -1, 0, w, h); context.restore();
+            const currentImageData = context.getImageData(0, 0, w, h);
+            if (lastImageData) {
+                let changedPixels = 0, totalPixelsInZone = 0;
+                for (let y = 0; y < h / 2; y++) {
+                    for (let x = w / 2; x < w; x++) {
+                        const i = (y * w + x) * 4;
+                        const diff = Math.abs(currentImageData.data[i] - lastImageData.data[i]) + Math.abs(currentImageData.data[i+1] - lastImageData.data[i+1]) + Math.abs(currentImageData.data[i+2] - lastImageData.data[i+2]);
+                        if (diff > 100) changedPixels++;
+                        totalPixelsInZone++;
+                    }
+                }
+                if (changedPixels > totalPixelsInZone * 0.12 && zonaArmada) ejecutarCaptura();
+                else if (changedPixels < totalPixelsInZone * 0.08) {
+                    framesCalmados++;
+                    if (framesCalmados > 4) { zonaArmada = true; zonaCapturaUI.style.borderColor = "#3b82f6"; }
+                } else { framesCalmados = 0; zonaArmada = false; zonaCapturaUI.style.borderColor = "#ef4444"; }
+            }
+            lastImageData = currentImageData;
+            setTimeout(() => { if (turnoActivo && manosActivas) requestAnimationFrame(procesarMovimiento); }, 150);
+        }
+
+        async function toggleTurno() {
+            if (!turnoActivo) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    video.srcObject = stream; document.getElementById('videoWrapper').style.display = 'inline-block';
+                    turnoActivo = true; btnIniciar.innerText = "⏹ FINALIZAR SISTEMA";
+                    btnIniciar.style.background = "linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)";
+                    instruccion.innerText = "SISTEMA ACTIVO";
+                } catch(e) { instruccion.innerText = "⚠️ Error de permisos"; }
+            } else { clearTimeout(envioPendiente); location.reload(); }
+        }
+
+        document.addEventListener('keydown', (e) => { keys[e.key.toLowerCase()] = true; });
+        document.addEventListener('keyup', (e) => {
+            if (keys['f'] && keys['j']) toggleTurno();
+            else if (e.key.toLowerCase() === 'f') toggleVoz();
+            else if (e.key.toLowerCase() === 'j') toggleManos();
+            keys[e.key.toLowerCase()] = false;
+        });
+        btnIniciar.addEventListener('click', toggleTurno);
+    </script>
+</body>
+</html>
