@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contabilidad - EcoClasificador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-emerald-950 min-h-screen text-white">
+
+<div class="container mx-auto px-6 py-12 max-w-4xl">
+
+    <h1 class="text-5xl font-bold text-center mb-10">📊 Contabilidad de Reciclaje</h1>
+
+    <div class="bg-slate-800/80 backdrop-blur-xl rounded-3xl p-10 mb-10">
+        <h2 class="text-3xl font-bold mb-4">{{ registro.objeto }}</h2>
+        <p class="text-emerald-400 text-xl">Categoría: <strong>RECICLABLE</strong></p>
+    </div>
+
+    {% if es_papel %}
+    <div class="bg-amber-900/30 border border-amber-400 rounded-3xl p-10">
+        <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+         📸 Foto con Moneda (Para estimar peso de papel)
+        </h3>
+     <p class="mb-8 text-gray-300">Coloca una moneda de 1 Bs al lado del montón de papel y toma la foto.</p>
+    
+        <form method="post" action="{% url 'calcular_papel' registro.id %}" enctype="multipart/form-data" class="space-y-6">
+           {% csrf_token %}
+        
+        
+            <div class="border-2 border-dashed border-amber-400 hover:border-amber-300 rounded-3xl p-12 text-center transition-all upload-area">
+                <input type="file" name="imagen_secundaria" id="file-papel" accept="image/*" required class="hidden">
+                <label for="file-papel" class="cursor-pointer flex flex-col items-center">
+                 <i class="fas fa-cloud-upload-alt text-6xl text-amber-400 mb-4"></i>
+                 <span class="text-xl font-semibold">Haz clic para subir la foto con la moneda</span>
+                 <span class="text-sm text-gray-400 mt-2">PNG, JPG o JPEG - Máximo 5MB</span>
+                </label>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 
+                       py-5 rounded-2xl text-xl font-bold flex items-center justify-center gap-3 transition-all">
+                <i class="fas fa-calculator"></i>
+                Calcular Peso y Ganancia →
+            </button>
+        </form>
+    </div>
+
+    {% elif es_botella %}
+    <div class="bg-blue-900/30 border border-blue-400 rounded-3xl p-10 text-center">
+      <h3 class="text-3xl font-bold mb-6">🥤 Botellas / Plásticos Detectados</h3>
+    
+      <form method="post" action="{% url 'calcular_botella' registro.id %}">
+             {% csrf_token %}
+        
+             <label class="block text-xl mb-4">Cantidad de botellas detectada:</label>
+            <input type="number" name="cantidad" min="1" 
+               value="{{ cantidad_detectada }}" 
+               class="w-48 text-center text-5xl bg-slate-700 rounded-2xl p-6 mx-auto block font-bold">
+        
+            <p class="text-sm text-gray-400 mt-4">Puedes cambiar la cantidad si la IA se equivocó</p>
+        
+            <button type="submit" class="mt-10 w-full bg-blue-600 hover:bg-blue-700 py-6 text-2xl font-bold rounded-2xl">
+             Calcular Ganancia Estimada →
+            </button>
+        </form>
+    </div>
+
+    {% else %}
+    <div class="text-center py-20">
+        <p class="text-2xl">Material detectado: <strong>{{ registro.objeto }}</strong></p>
+        <p class="mt-6 text-xl">Pronto agregaremos cálculo automático para este tipo.</p>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-12">
+        <a href="{% url 'home' %}" class="text-emerald-400 hover:text-emerald-300 text-lg">
+            ← Clasificar otro residuo
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

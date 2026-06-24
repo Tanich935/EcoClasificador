@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Logros</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+
+<div class="container mx-auto p-10">
+
+    <h1 class="text-5xl font-bold text-center mb-10">
+        🏆 Logros Ambientales
+    </h1>
+
+    <div class="text-center text-2xl mb-10">
+        Total de residuos clasificados:
+        <strong>{{ total }}</strong>
+    </div>
+
+    {% for logro in logros %}
+    <div class="bg-slate-800 p-6 rounded-2xl mb-4">
+
+        <h2 class="text-2xl font-bold">
+            {{ logro.nombre }}
+        </h2>
+
+        <p>Meta: {{ logro.meta }} residuos</p>
+
+        {% if logro.cumplido %}
+            <p class="text-green-400 font-bold">
+                ✅ Desbloqueado
+            </p>
+        {% else %}
+            <p class="text-yellow-400">
+                🔒 Bloqueado
+            </p>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+
+    <div class="mt-10 bg-slate-800 p-6 rounded-2xl">
+        <h2 class="text-3xl font-bold mb-4">📊 Estadísticas</h2>
+
+        <p>♻️ Reciclables: {{ reciclables }}</p>
+        <p>🗑️ No reciclables: {{ no_reciclables }}</p>
+        <p>🔄 Aprovechables: {{ aprovechables }}</p>
+        <p>☣️ Infecciosos: {{ infecciosos }}</p>
+    </div>
+
+</div>
+
+</body>
+</html>

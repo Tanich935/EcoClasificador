@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - EcoClasificador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-emerald-950 min-h-screen text-white">
+
+<div class="container mx-auto px-6 py-12">
+
+    <div class="max-w-2xl mx-auto text-center">
+        
+        <h1 class="text-6xl font-bold mb-8">Resultado de la Clasificación</h1>
+
+        {% if registro %}
+        <div class="bg-slate-800/80 backdrop-blur-xl border border-emerald-500 rounded-3xl p-12">
+
+            {% if registro.imagen %}
+                <img src="{{ registro.imagen.url }}" 
+                     class="mx-auto rounded-2xl shadow-2xl mb-10 max-h-96 object-contain">
+            {% endif %}
+
+            <h2 class="text-4xl font-bold mb-6">{{ registro.objeto }}</h2>
+            
+            <div class="inline-flex items-center gap-4 text-2xl font-bold px-10 py-5 rounded-2xl 
+                {% if registro.categoria == 'RECICLABLE' %}bg-green-500
+                {% elif registro.categoria == 'NO_RECICLABLE' %}bg-red-500
+                {% elif registro.categoria == 'APROVECHABLE' %}bg-blue-500
+                {% else %}bg-purple-500{% endif %}">
+                <i class="fas fa-tag"></i>
+                {{ registro.categoria }}
+            </div>
+
+            <p class="mt-8 text-gray-400">{{ registro.fecha }}</p>
+        </div>
+
+        <div class="mt-10 flex gap-4 justify-center">
+            <a href="{% url 'home' %}" 
+               class="bg-white text-black px-8 py-4 rounded-2xl font-bold hover:bg-gray-200 transition">
+               ← Clasificar otro residuo
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+     <div class="mt-12 text-center">
+        <a href="{% url 'contabilidad_dashboard' %}" 
+            class="text-purple-400 hover:text-purple-300 text-lg font-medium">
+             📊 Ir al Dashboard de Contabilidad →
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

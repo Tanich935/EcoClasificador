@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Egreso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-red-950 min-h-screen text-white">
+
+<div class="max-w-lg mx-auto py-20 px-6">
+    <h1 class="text-4xl font-bold text-center mb-10">Registrar Egreso</h1>
+    
+    <form method="post" class="bg-slate-800/80 p-10 rounded-3xl">
+        {% csrf_token %}
+        <div class="mb-6">
+            <label class="block text-lg mb-2">Descripción del gasto</label>
+            <input type="text" name="descripcion" required class="w-full p-4 rounded-2xl bg-slate-700" placeholder="Ej: Transporte de residuos">
+        </div>
+        <div class="mb-8">
+            <label class="block text-lg mb-2">Monto (Bs)</label>
+            <input type="number" step="0.01" name="monto" required class="w-full p-4 rounded-2xl bg-slate-700 text-3xl">
+        </div>
+        <button type="submit" class="w-full bg-red-600 py-5 text-xl font-bold rounded-2xl">Guardar Egreso</button>
+    </form>
+</div>
+
+</body>
+</html>
