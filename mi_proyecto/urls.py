@@ -8,4 +8,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('clasificador.urls')),
     path('ayuda-externa/', include('ayudaExterna.urls')),
+    path('panel/', include('panelDeAdministracion.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

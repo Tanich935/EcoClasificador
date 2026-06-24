@@ -146,6 +146,29 @@
             ♻️ Clasificar Residuo
         </a>
 
+        <!-- --- ZONA DE SEGURIDAD Y ADMINISTRACIÓN --- -->
+        <hr class="border-slate-600">
+
+        {% if request.user.is_staff %}
+        <a href="{% url 'panel_admin' %}"
+           class="block px-6 py-4 bg-emerald-600 hover:bg-emerald-500 font-bold text-white transition">
+            ⚙️ Panel de Control
+        </a>
+        {% endif %}
+
+        {% if not request.user.is_authenticated %}
+        <a href="/panel/login/?next=/panel/"
+           class="block px-6 py-4 text-emerald-400 hover:bg-slate-700 font-medium transition">
+            🔑 Iniciar Sesión (Admin)
+        </a>
+        {% else %}
+        <!-- Cambiamos el link del admin por nuestro logout custom -->
+        <a href="{% url 'logout_custom' %}"
+           class="block px-6 py-4 text-red-400 hover:bg-slate-700 font-medium transition">
+            🚪 Cerrar Sesión
+        </a>
+        {% endif %}
+
     </div>
 </div>
 

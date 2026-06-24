@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.storage import default_storage
 from django.conf import settings
 from datetime import datetime
-from django.shortcuts import render, redirect, get_object_or_404
 import uuid
 import os
 from dotenv import load_dotenv
+from django.contrib.auth.decorators import login_required
 
+from panelDeAdministracion.models import ParametroGlobal
 from ChatConIA import Procesador
 from .models import RegistroResiduo
 
@@ -14,18 +15,19 @@ load_dotenv()
 procesador = Procesador()
 apikey = os.getenv("GEMINI_API_KEY")
 
-
-
 if apikey:
     procesador.darApiKey(apikey)
 else:
     print("ALERTA: No se encontró la API Key en el archivo .env")
 
+
+@login_required(login_url='/panel/login/')
 def home(request):
     registros = RegistroResiduo.objects.all().order_by('-fecha')[:6]  # últimos 6
     return render(request, 'clasificador/home.html', {'registros': registros})
 
 
+@login_required(login_url='/panel/login/')
 def clasificar_imagen(request):
     if request.method == 'POST' and request.FILES.get('imagen'):
         try:
@@ -59,7 +61,7 @@ def clasificar_imagen(request):
     return redirect('home')
 
 
-
+@login_required(login_url='/panel/login/')
 def contabilidad(request, registro_id):
     registro = get_object_or_404(RegistroResiduo, id=registro_id)
     
@@ -69,7 +71,6 @@ def contabilidad(request, registro_id):
 
     cantidad_detectada = 1
 
-    # 2. USAMOS TU LIBRERÍA OFICIAL PARA CONTAR OBJETOS
     if es_botella:
         ruta_absoluta = os.path.join(settings.MEDIA_ROOT, registro.imagen.name)
         cantidad_detectada = procesador.contarObjetos(ruta_absoluta, "botellas, envases plásticos o PET")
@@ -81,8 +82,10 @@ def contabilidad(request, registro_id):
         'cantidad_detectada': cantidad_detectada,
     })
 
+
 # ====================== CONTABILIDAD ======================
 
+@login_required(login_url='/panel/login/')
 def calcular_botella(request, registro_id):
     registro = get_object_or_404(RegistroResiduo, id=registro_id)
     
@@ -90,12 +93,16 @@ def calcular_botella(request, registro_id):
         try:
             cantidad = int(request.POST.get('cantidad', 1))
             peso_por_botella = 0.025
-            precio_por_kg = 1.50
+            
+            try:
+                parametro = ParametroGlobal.objects.get(nombre='PRECIO_KG_RECICLABLE')
+                precio_por_kg = parametro.valor
+            except ParametroGlobal.DoesNotExist:
+                precio_por_kg = 1.50
 
             peso_total = cantidad * peso_por_botella
             ganancia = peso_total * precio_por_kg
 
-            # === REGISTRAR INGRESO EN CONTABILIDAD ===
             from .models import MovimientoFinanciero
             MovimientoFinanciero.objects.create(
                 tipo='INGRESO',
@@ -117,17 +124,22 @@ def calcular_botella(request, registro_id):
     return redirect('contabilidad', registro_id=registro_id)
 
 
+@login_required(login_url='/panel/login/')
 def calcular_papel(request, registro_id):
     registro = get_object_or_404(RegistroResiduo, id=registro_id)
     
     if request.method == 'POST' and request.FILES.get('imagen_secundaria'):
-        # Simulación por ahora (después mejoramos con IA)
         cantidad_hojas = 50  
         peso_total = cantidad_hojas * 0.005  
-        precio_por_kg = 1.20
+        
+        try:
+            parametro = ParametroGlobal.objects.get(nombre='PRECIO_KG_PAPEL')
+            precio_por_kg = parametro.valor
+        except ParametroGlobal.DoesNotExist:
+            precio_por_kg = 1.20 
+        
         ganancia = peso_total * precio_por_kg
 
-        # === REGISTRAR INGRESO EN CONTABILIDAD ===
         from .models import MovimientoFinanciero
         MovimientoFinanciero.objects.create(
             tipo='INGRESO',
@@ -147,6 +159,7 @@ def calcular_papel(request, registro_id):
     return redirect('contabilidad', registro_id=registro_id)
 
 
+@login_required(login_url='/panel/login/')
 def resultado(request):
     ultimo = RegistroResiduo.objects.order_by('-fecha').first()
     if not ultimo:
@@ -157,8 +170,8 @@ def resultado(request):
 
 # ====================== CONTABILIDAD (Ingresos y Egresos) ======================
 
+@login_required(login_url='/panel/login/')
 def contabilidad_dashboard(request):
-    """Dashboard simple de Contabilidad"""
     from .models import MovimientoFinanciero
     
     ingresos = MovimientoFinanciero.objects.filter(tipo='INGRESO')
@@ -175,8 +188,8 @@ def contabilidad_dashboard(request):
     })
 
 
+@login_required(login_url='/panel/login/')
 def registrar_egreso(request):
-    """Registrar egresos (costos)"""
     from .models import MovimientoFinanciero
     
     if request.method == 'POST':
@@ -189,25 +202,15 @@ def registrar_egreso(request):
     
     return render(request, 'clasificador/registrar_egreso.html')
 
+
+@login_required(login_url='/panel/login/')
 def logros(request):
     total = RegistroResiduo.objects.count()
 
     logros = [
-        {
-            "nombre": "🌱 Eco Novato",
-            "meta": 25,
-            "cumplido": total >= 25
-        },
-        {
-            "nombre": "♻️ Eco Protector",
-            "meta": 100,
-            "cumplido": total >= 100
-        },
-        {
-            "nombre": "🏆 Eco Maestro",
-            "meta": 250,
-            "cumplido": total >= 250
-        }
+        {"nombre": "🌱 Eco Novato", "meta": 25, "cumplido": total >= 25},
+        {"nombre": "♻️ Eco Protector", "meta": 100, "cumplido": total >= 100},
+        {"nombre": "🏆 Eco Maestro", "meta": 250, "cumplido": total >= 250}
     ]
 
     reciclables = RegistroResiduo.objects.filter(categoria='RECICLABLE').count()
