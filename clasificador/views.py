@@ -13,16 +13,12 @@ from .models import RegistroResiduo
 
 load_dotenv()
 procesador = Procesador()
-<<<<<<< HEAD
-procesador.darApiKey("")
-=======
 apikey = os.getenv("GEMINI_API_KEY")
 
 if apikey:
     procesador.darApiKey(apikey)
 else:
     print("ALERTA: No se encontró la API Key en el archivo .env")
->>>>>>> 23211a061f94cff7bd2cf23fdab18a731f636042
 
 
 @login_required(login_url='/panel/login/')
@@ -164,18 +160,13 @@ def calcular_papel(request, registro_id):
     return redirect('contabilidad', registro_id=registro_id)
 
 
-<<<<<<< HEAD
 @login_required(login_url='/panel/login/')
-=======
->>>>>>> 23211a061f94cff7bd2cf23fdab18a731f636042
->>>>>>> 58225292b675db844d93a515c5a04142520f8ccf
 def resultado(request):
     ultimo = RegistroResiduo.objects.order_by('-fecha').first()
     if not ultimo:
         return redirect('home')
     
     return render(request, 'clasificador/resultado.html', {'registro': ultimo})
-<<<<<<< HEAD
 
 
 # ====================== CONTABILIDAD (Ingresos y Egresos) ======================
@@ -236,5 +227,3 @@ def logros(request):
         'aprovechables': aprovechables,
         'infecciosos': infecciosos,
     })
-=======
->>>>>>> 58225292b675db844d93a515c5a04142520f8ccf
