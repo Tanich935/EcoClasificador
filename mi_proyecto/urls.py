@@ -9,6 +9,7 @@ urlpatterns = [
     path('', include('clasificador.urls')),
     path('', include('contabilidad.urls')),
     path('', include('logros.urls')),
+    path('', include('Informe_y_Reportes.urls')),
     path('ayuda-externa/', include('ayudaExterna.urls')),
     path('panel/', include('panelDeAdministracion.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

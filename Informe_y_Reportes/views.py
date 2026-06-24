@@ -2,7 +2,8 @@
 from django.shortcuts import render
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
-from clasificador.models import RegistroResiduo, MovimientoFinanciero
+from clasificador.models import RegistroResiduo
+from contabilidad.models import MovimientoFinanciero
 
 def dashboard_reportes(request):
     categorias = RegistroResiduo.objects.values(

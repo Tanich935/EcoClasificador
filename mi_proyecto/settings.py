@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'logros',
     'ayudaExterna',
     'panelDeAdministracion',
-
+    'Informe_y_Reportes',
 ]
 
 MIDDLEWARE = [
