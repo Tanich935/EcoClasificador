@@ -50,6 +50,26 @@ class Procesador:
         except Exception as e:
             return "Error", "Fallo al procesar la imagen: " + str(e)
 
+    def contarObjetos(self, ruta_imagen, tipo_objeto="botellas"):
+        from PIL import Image
+        import re
+        
+        try:
+            imagen = Image.open(ruta_imagen)
+            prompt = f"Cuenta cuántas {tipo_objeto} hay en esta imagen. Responde SOLO con un número entero. Si no ves nada claro, responde 1."
+            
+            respuesta = self.model.generate_content([prompt, imagen])
+            texto = respuesta.text.strip()
+            
+            numeros = re.findall(r'\d+', texto)
+            if numeros:
+                cantidad = int(numeros[0])
+                return cantidad if cantidad > 0 else 1
+            return 1
+        except Exception as e:
+            print(f"Error contando {tipo_objeto}: {e}")
+            return 1
+    
     def escucharMicrofono(self):
         try:
             with sr.Microphone() as source:
