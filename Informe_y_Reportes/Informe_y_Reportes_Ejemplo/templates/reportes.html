@@ -1,0 +1,18 @@
+
+<h1>Dashboard de Reportes</h1>
+
+<h2>Ganancia Neta: Bs {{ ganancia_neta }}</h2>
+
+<h3>Categorías</h3>
+<ul>
+{% for c in categorias %}
+<li>{{ c.categoria }} : {{ c.total }}</li>
+{% endfor %}
+</ul>
+
+<h3>Top Objetos</h3>
+<ul>
+{% for o in top_objetos %}
+<li>{{ o.objeto }} : {{ o.total }}</li>
+{% endfor %}
+</ul>
