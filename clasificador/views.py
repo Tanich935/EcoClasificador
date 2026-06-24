@@ -5,12 +5,21 @@ from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 import uuid
 import os
+from dotenv import load_dotenv
 
 from ChatConIA import Procesador
 from .models import RegistroResiduo
 
+load_dotenv()
 procesador = Procesador()
-procesador.darApiKey("AIzaSyB4R4YbYxsAm7e5x6xr_LKJiFrV6Empxsk")
+apikey = os.getenv("GEMINI_API_KEY")
+
+
+
+if apikey:
+    procesador.darApiKey(apikey)
+else:
+    print("ALERTA: No se encontró la API Key en el archivo .env")
 
 def home(request):
     registros = RegistroResiduo.objects.all().order_by('-fecha')[:6]  # últimos 6
@@ -60,32 +69,10 @@ def contabilidad(request, registro_id):
 
     cantidad_detectada = 1
 
+    # 2. USAMOS TU LIBRERÍA OFICIAL PARA CONTAR OBJETOS
     if es_botella:
-        try:
-            from PIL import Image
-            import re
-            
-            ruta_absoluta = os.path.join(settings.MEDIA_ROOT, registro.imagen.name)
-            imagen = Image.open(ruta_absoluta)
-            
-            prompt = """
-            Cuenta cuántas botellas, envases plásticos o PET hay en esta imagen.
-            Responde SOLO con un número entero. Si no ves botellas claras, responde 1.
-            """
-            
-            respuesta = procesador.model.generate_content([prompt, imagen])
-            texto = respuesta.text.strip()
-            
-            print(f"🔍 IA respondió: {texto}")  # ← Esto te ayudará a ver qué dice la IA
-            
-            numeros = re.findall(r'\d+', texto)
-            if numeros:
-                cantidad_detectada = int(numeros[0])
-                if cantidad_detectada < 1:
-                    cantidad_detectada = 1
-                    
-        except Exception as e:
-            print(f"❌ Error contando botellas: {e}")
+        ruta_absoluta = os.path.join(settings.MEDIA_ROOT, registro.imagen.name)
+        cantidad_detectada = procesador.contarObjetos(ruta_absoluta, "botellas, envases plásticos o PET")
 
     return render(request, 'clasificador/contabilidad.html', {
         'registro': registro,
