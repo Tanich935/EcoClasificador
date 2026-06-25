@@ -25,19 +25,8 @@ class Procesador:
         self.recognizer = sr.Recognizer()
 
     def darApiKey(self, apikey):
-<<<<<<< HEAD
         genai.configure(api_key=apikey)
-        self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-=======
-
-        genai.configure(
-            api_key=apikey
-        )
-
-        self.model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash"
-        )
->>>>>>> a228b24ad77a5ad98200a7ff9cebb6ffb429056f
+        self.model = genai.GenerativeModel(model_name="gemini-2.5-flash")
 
     def activarVoz(self):
         self.activarTTS = True
@@ -88,7 +77,6 @@ class Procesador:
             )
 
         try:
-<<<<<<< HEAD
             imagen = Image.open(rutaImagen)
             prompt = "Identifica el objeto de esta imagen y clasificalo en UNA de estas 4 categorias: RECICLABLE, NO_RECICLABLE, APROVECHABLE, INFECCIOSO. Responde ESTRICTAMENTE en este formato: 'Nombre del objeto - CATEGORIA'. No agregues nada mas."
             
@@ -111,8 +99,6 @@ class Procesador:
             traceback.print_exc()
             
             return "Error", "Error"
-=======
->>>>>>> a228b24ad77a5ad98200a7ff9cebb6ffb429056f
 
             self.mejorarImagen(
                 rutaImagen
