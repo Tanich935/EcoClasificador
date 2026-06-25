@@ -4,22 +4,17 @@ from django.conf import settings
 from datetime import datetime
 import uuid
 import os
-from dotenv import load_dotenv
 from django.contrib.auth.decorators import login_required
 
 from panelDeAdministracion.models import ParametroGlobal
-from ChatConIA import Procesador
+from ChatConIA.procesador import Procesador
 from .models import RegistroResiduo
 
-load_dotenv()
+
 procesador = Procesador()
-apikey = os.getenv("GEMINI_API_KEY")
 
-if apikey:
-    procesador.darApiKey(apikey)
-else:
-    print("ALERTA: No se encontró la API Key en el archivo .env")
-
+# API KEY DIRECTA
+procesador.darApiKey("aqui la llave api")
 
 @login_required(login_url='/panel/login/')
 def home(request):

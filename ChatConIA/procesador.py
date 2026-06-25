@@ -1,19 +1,43 @@
 import google.generativeai as genai
 import pyttsx3
 import speech_recognition as sr
+import cv2
+
 from PIL import Image
+from .parser import ParserClasificacion
+
 
 class Procesador:
+
     def __init__(self):
+
         self.model = None
+
         self.tts = pyttsx3.init()
-        self.tts.setProperty('rate', 150)
+
+        self.tts.setProperty(
+            'rate',
+            150
+        )
+
         self.activarTTS = False
+
         self.recognizer = sr.Recognizer()
 
     def darApiKey(self, apikey):
+<<<<<<< HEAD
         genai.configure(api_key=apikey)
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+=======
+
+        genai.configure(
+            api_key=apikey
+        )
+
+        self.model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash"
+        )
+>>>>>>> a228b24ad77a5ad98200a7ff9cebb6ffb429056f
 
     def activarVoz(self):
         self.activarTTS = True
@@ -22,15 +46,49 @@ class Procesador:
         self.activarTTS = False
 
     def _hablar(self, texto):
-        if self.activarTTS == True:
+
+        if self.activarTTS:
+
             self.tts.say(texto)
+
             self.tts.runAndWait()
 
+    # ==========================
+    # PROCESAMIENTO DE IMAGEN
+    # ==========================
+
+    def mejorarImagen(self, ruta):
+
+        imagen = cv2.imread(ruta)
+
+        if imagen is None:
+            return
+
+        gris = cv2.cvtColor(
+            imagen,
+            cv2.COLOR_BGR2GRAY
+        )
+
+        cv2.imwrite(
+            ruta,
+            gris
+        )
+
+    # ==========================
+    # CLASIFICAR IMAGEN
+    # ==========================
+
     def clasificarImagen(self, rutaImagen):
-        if self.model == None:
-            return "Error", "API KEY no establecida"
+
+        if self.model is None:
+
+            return (
+                "Error",
+                "API KEY no establecida"
+            )
 
         try:
+<<<<<<< HEAD
             imagen = Image.open(rutaImagen)
             prompt = "Identifica el objeto de esta imagen y clasificalo en UNA de estas 4 categorias: RECICLABLE, NO_RECICLABLE, APROVECHABLE, INFECCIOSO. Responde ESTRICTAMENTE en este formato: 'Nombre del objeto - CATEGORIA'. No agregues nada mas."
             
@@ -53,73 +111,122 @@ class Procesador:
             traceback.print_exc()
             
             return "Error", "Error"
+=======
+>>>>>>> a228b24ad77a5ad98200a7ff9cebb6ffb429056f
 
-    def contarObjetos(self, ruta_imagen, tipo_objeto="botellas"):
-        from PIL import Image
-        import re
-        
-        try:
-            imagen = Image.open(ruta_imagen)
-            prompt = f"Cuenta cuántas {tipo_objeto} hay en esta imagen. Responde SOLO con un número entero. Si no ves nada claro, responde 1."
-            
-            respuesta = self.model.generate_content([prompt, imagen])
-            texto = respuesta.text.strip()
-            
-            numeros = re.findall(r'\d+', texto)
-            if numeros:
-                cantidad = int(numeros[0])
-                return cantidad if cantidad > 0 else 1
-            return 1
-        except Exception as e:
-            print(f"Error contando {tipo_objeto}: {e}")
-            return 1
-    
-    def escucharMicrofono(self):
-        try:
-            with sr.Microphone() as source:
-                print("[Escuchando...]")
-                self.recognizer.adjust_for_ambient_noise(source)
-                audio = self.recognizer.listen(source, timeout=5)
-                texto = self.recognizer.recognize_google(audio, language="es-BO")
-                return texto
-        except sr.UnknownValueError:
-            return "ERROR_AUDIO"
-        except sr.RequestError:
-            return "ERROR_CONEXION"
-        except sr.WaitTimeoutError:
-            return "ERROR_TIEMPO"
+            self.mejorarImagen(
+                rutaImagen
+            )
 
-    def clasificarPorVoz(self):
-        self._hablar("Que residuo vas a botar")
-        textoUsuario = self.escucharMicrofono()
-        
-        if textoUsuario == "ERROR_AUDIO" or textoUsuario == "ERROR_CONEXION" or textoUsuario == "ERROR_TIEMPO":
-            self._hablar("No te escuche bien o hubo un error")
-            return "Error", "Problema con el microfono"
+            imagen = Image.open(
+                rutaImagen
+            )
 
-        prompt = "El usuario tiene este residuo: " + textoUsuario + ". Identifica el objeto y clasificalo en UNA de estas 4 categorias: RECICLABLE, NO_RECICLABLE, APROVECHABLE, INFECCIOSO. Responde ESTRICTAMENTE en este formato: 'Nombre del objeto - CATEGORIA'. No agregues nada mas."
-        
-        try:
-            respuesta = self.model.generate_content(prompt)
+            prompt = """
+            Identifica el objeto de esta imagen
+            y clasifícalo en UNA de estas categorías:
+
+            RECICLABLE
+            NO_RECICLABLE
+            APROVECHABLE
+            INFECCIOSO
+
+            Responde exactamente:
+
+            Nombre del objeto - CATEGORIA
+            """
+
+            respuesta = self.model.generate_content(
+                [prompt, imagen]
+            )
+
             resultado = respuesta.text.strip()
-            
-            if " - " in resultado:
-                datos = resultado.split(" - ")
-                nombreObjeto = datos[0].strip()
-                categoriaObjeto = datos[1].strip()
-                
-                self._hablar("Residuo clasificado por voz")
-                return nombreObjeto, categoriaObjeto
-            else:
-                return "Error", "Formato incorrecto de la IA: " + resultado
-                
-        except Exception as e:
-            return "Error", "Fallo al contactar a la IA: " + str(e)
 
-    def resumirTexto(self, texto):
-        prompt = "Resume en pocas palabras el siguiente texto: " + texto
-        try:
-            respuesta = self.model.generate_content(prompt)
-            return respuesta.text.strip()
+            objeto, categoria = (
+                ParserClasificacion.interpretar(
+                    resultado
+                )
+            )
+
+            if objeto is None:
+
+                return (
+                    "Error",
+                    "Formato incorrecto: "
+                    + resultado
+                )
+
+            self._hablar(
+                "Residuo detectado y clasificado"
+            )
+
+            return (
+                objeto,
+                categoria
+            )
+
         except Exception as e:
-            return "Error: " + str(e)
+
+            return (
+                "Error",
+                "Fallo al procesar la imagen: "
+                + str(e)
+            )
+
+    # ==========================
+    # CONTAR OBJETOS
+    # ==========================
+
+    def contarObjetos(
+        self,
+        ruta_imagen,
+        tipo_objeto="botellas"
+    ):
+
+        import re
+
+        try:
+
+            imagen = Image.open(
+                ruta_imagen
+            )
+
+            prompt = f"""
+            Cuenta cuántas
+            {tipo_objeto}
+            existen en la imagen.
+
+            Responde SOLO
+            con un número entero.
+            """
+
+            respuesta = self.model.generate_content(
+                [prompt, imagen]
+            )
+
+            texto = respuesta.text.strip()
+
+            numeros = re.findall(
+                r'\d+',
+                texto
+            )
+
+            if numeros:
+
+                cantidad = int(
+                    numeros[0]
+                )
+
+                return (
+                    cantidad
+                    if cantidad > 0
+                    else 1
+                )
+
+            return 1
+
+        except Exception as e:
+
+            print(e)
+
+            return 1
