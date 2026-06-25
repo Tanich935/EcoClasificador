@@ -51,5 +51,128 @@
 
 </div>
 
+<div style="position: fixed; bottom: 30px; left: 30px; z-index: 9999;">
+        <a href="/ayuda-externa/" id="btn-accesibilidad" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <i class="fas fa-universal-access text-xl"></i>
+            <span>Modo Accesibilidad (F + J)</span>
+        </a>
+    </div>
+
+    <script>
+        let teclasActivasGlobal = {};
+        
+        // ¡LA MAGIA! Leemos la memoria del navegador. Si estaba encendido en la página anterior, arranca encendido.
+        let intencionMicrofonoGlobal = sessionStorage.getItem('microfonoInmortal') === 'true';
+        let reconocimientoGlobal; 
+        
+        const btnAccesibilidadGlobal = document.getElementById('btn-accesibilidad');
+        const contenidoOriginalBotonGlobal = btnAccesibilidadGlobal.innerHTML;
+
+        const SpeechRecognitionGlobal = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognitionGlobal) {
+            reconocimientoGlobal = new SpeechRecognitionGlobal();
+            reconocimientoGlobal.lang = 'es-ES'; 
+            reconocimientoGlobal.continuous = true; 
+            
+            reconocimientoGlobal.onstart = function() {
+                btnAccesibilidadGlobal.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
+                btnAccesibilidadGlobal.style.borderColor = "#ef4444";
+                btnAccesibilidadGlobal.style.color = "#ffffff";
+                btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+            };
+
+            reconocimientoGlobal.onresult = function(event) {
+                const ultimoIndice = event.results.length - 1;
+                const comando = event.results[ultimoIndice][0].transcript.toLowerCase().trim();
+                console.log("Comando escuchado: ", comando);
+                
+                btnAccesibilidadGlobal.innerHTML = `<i class="fas fa-comment-dots text-xl"></i><span> Escuchó: "${comando}"</span>`;
+                let comandoValido = true;
+
+                // --- RUTAS (Agrega aquí la ruta de tu resultado si es diferente) ---
+                if (comando.includes("clasificar") || comando.includes("ayuda") || comando.includes("cámara")) {
+                    window.location.href = "/ayuda-externa/";
+                } else if (comando.includes("inicio") || comando.includes("principal") || comando.includes("home")) {
+                    window.location.href = "/";
+                } else if (comando.includes("contabilidad") || comando.includes("finanzas") || comando.includes("dinero")) {
+                    window.location.href = "/contabilidad/";
+                } else if (comando.includes("logro") || comando.includes("trofeo") || comando.includes("recompensa")) {
+                    window.location.href = "/logros/";
+                } else if (comando.includes("panel") || comando.includes("control") || comando.includes("administración") || comando.includes("admin")) {
+                    window.location.href = "/panel_admin/";
+                } else if (comando.includes("cerrar sesión") || comando.includes("salir") || comando.includes("desconectar")) {
+                    window.location.href = "/logout_custom/"; 
+                } else {
+                    comandoValido = false;
+                    setTimeout(() => {
+                        if(intencionMicrofonoGlobal) {
+                            btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+                        }
+                    }, 2000);
+                }
+
+                // OJO: Si el comando ES VÁLIDO, NO apagamos la intención. 
+                // Dejamos que salte de página y la siguiente página mantendrá el micrófono vivo.
+            };
+
+            reconocimientoGlobal.onend = function() {
+                // Si la intención sigue viva (no apretaste F+J para apagar), lo reinicia.
+                if (intencionMicrofonoGlobal) {
+                    try { reconocimientoGlobal.start(); } catch(e) {}
+                } else {
+                    btnAccesibilidadGlobal.style.backgroundColor = "rgba(30, 41, 59, 0.9)";
+                    btnAccesibilidadGlobal.style.borderColor = "#10b981";
+                    btnAccesibilidadGlobal.style.color = "#10b981";
+                    btnAccesibilidadGlobal.innerHTML = contenidoOriginalBotonGlobal;
+                }
+            };
+        }
+
+        // AUTO-ARRANQUE AL CARGAR LA PÁGINA NUEVA
+        window.addEventListener('load', () => {
+            if (intencionMicrofonoGlobal && reconocimientoGlobal) {
+                console.log("Memoria detectó micrófono activo. Auto-iniciando...");
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            }
+        });
+
+        // CONTROL MANUAL F+J
+        document.addEventListener('keydown', function(event) {
+            if (event.repeat) return; 
+            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
+            
+            teclasActivasGlobal[event.key.toLowerCase()] = true;
+
+            if (teclasActivasGlobal['f'] && teclasActivasGlobal['j']) {
+                event.preventDefault(); 
+                
+                if (!intencionMicrofonoGlobal) {
+                    // ENCENDER Y GUARDAR EN MEMORIA
+                    intencionMicrofonoGlobal = true;
+                    sessionStorage.setItem('microfonoInmortal', 'true');
+                    try { reconocimientoGlobal.start(); } catch(e) {}
+                } else {
+                    // APAGAR Y BORRAR DE MEMORIA
+                    intencionMicrofonoGlobal = false;
+                    sessionStorage.setItem('microfonoInmortal', 'false');
+                    reconocimientoGlobal.stop();
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            teclasActivasGlobal[event.key.toLowerCase()] = false;
+        });
+    </script>
+    ```
+
+### ¿Qué vas a lograr con esto mañana?
+1. Vas a presionar `F+J` **una sola vez** al inicio de tu defensa.
+2. Le vas a decir *"Clasificar"*.
+3. Vas a tomar la foto y la página te mostrará *"Hoja de papel, Reciclable"*.
+4. **Sin volver a tocar el teclado**, la memoria del navegador encenderá el botón rojo solito, y podrás decirle inmediatamente *"Contabilidad"* para ir a ver cómo se sumaron tus bolivianos.
+
+Pega este bloque en tus archivos clave (especialmente en el HTML donde te muestra la clasificación de la "hoja de papel") y verás que la IA viaja contigo como un fantasma por todo tu proyecto. ¡Pruébalo y dime qué tal se siente!
+
 </body>
 </html>

@@ -86,10 +86,30 @@
         }
 
         const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        reconocimiento.continuous = true; reconocimiento.lang = 'es-ES';
+        reconocimiento.continuous = true; 
+        reconocimiento.lang = 'es-ES';
+        
         reconocimiento.onresult = (event) => {
-            const comando = event.results[event.results.length - 1][0].transcript.toLowerCase();
-            if(comando.includes("capturar")) ejecutarCaptura();
+            const comando = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+            console.log("IA de Ayuda Externa escuchó: ", comando);
+
+            // 1. Comando de Acción Local
+            if (comando.includes("capturar") || comando.includes("foto") || comando.includes("tomar")) {
+                ejecutarCaptura();
+            }
+            // 2. Comandos de Navegación Globales (Para escapar de esta página)
+            else if (comando.includes("inicio") || comando.includes("principal") || comando.includes("home")) {
+                window.location.href = "/";
+            } 
+            else if (comando.includes("contabilidad") || comando.includes("finanzas")) {
+                window.location.href = "/contabilidad/";
+            } 
+            else if (comando.includes("logro") || comando.includes("trofeo")) {
+                window.location.href = "/logros/";
+            } 
+            else if (comando.includes("panel") || comando.includes("control") || comando.includes("administración")) {
+                window.location.href = "/panel_admin/"; // Ajusta esta URL si en urls.py se llama distinto
+            }
         };
 
         function toggleVoz() {

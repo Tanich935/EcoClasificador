@@ -146,6 +146,27 @@
             ♻️ Clasificar Residuo
         </a>
 
+        <hr class="border-slate-600">
+        
+        {% if request.user.is_staff %}
+        <a href="{% url 'panel_admin' %}"
+           class="block px-6 py-4 bg-emerald-600 hover:bg-emerald-500 font-bold text-white transition">
+            ⚙️ Panel de Control
+        </a>
+        {% endif %}
+
+        {% if not request.user.is_authenticated %}
+        <a href="/panel/login/?next=/panel/"
+           class="block px-6 py-4 text-emerald-400 hover:bg-slate-700 font-medium transition">
+            🔑 Iniciar Sesión (Admin)
+        </a>
+        {% else %}
+        <a href="{% url 'logout_custom' %}"
+           class="block px-6 py-4 text-red-400 hover:bg-slate-700 font-medium transition">
+            🚪 Cerrar Sesión
+        </a>
+        {% endif %}
+
     </div>
 </div>
 
@@ -156,27 +177,144 @@ function toggleMenu() {
 }
 </script>
 
-<div style="position: fixed; bottom: 30px; left: 30px; z-index: 50;">
-    <a href="/ayuda-externa/" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+<div style="position: fixed; bottom: 30px; left: 30px; z-index: 9999;">
+    <a href="javascript:void(0)" id="btn-accesibilidad" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
         <i class="fas fa-universal-access text-xl"></i>
         <span>Modo Accesibilidad (F + J)</span>
     </a>
 </div>
 
 <script>
-    let teclasPresionadas = {};
+    let teclasActivasGlobal = {};
+    // Memoria del navegador
+    let intencionMicrofonoGlobal = sessionStorage.getItem('microfonoInmortal') === 'true';
+    let reconocimientoGlobal;
+    let esperandoInteraccion = false;
+    
+    const btnAccesibilidadGlobal = document.getElementById('btn-accesibilidad');
+    const contenidoOriginalBotonGlobal = btnAccesibilidadGlobal.innerHTML;
 
-    document.addEventListener('keydown', (event) => {
-        if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
-        teclasPresionadas[event.key.toLowerCase()] = true;
-        if (teclasPresionadas['f'] && teclasPresionadas['j']) {
-            window.location.href = '/ayuda-externa/';
+    const SpeechRecognitionGlobal = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognitionGlobal) {
+        reconocimientoGlobal = new SpeechRecognitionGlobal();
+        reconocimientoGlobal.lang = 'es-ES'; 
+        reconocimientoGlobal.continuous = true; 
+        
+        reconocimientoGlobal.onstart = function() {
+            esperandoInteraccion = false;
+            btnAccesibilidadGlobal.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
+            btnAccesibilidadGlobal.style.borderColor = "#ef4444";
+            btnAccesibilidadGlobal.style.color = "#ffffff";
+            btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+        };
+
+        reconocimientoGlobal.onresult = function(event) {
+            const ultimoIndice = event.results.length - 1;
+            const comando = event.results[ultimoIndice][0].transcript.toLowerCase().trim();
+            console.log("Comando escuchado: ", comando);
+            
+            btnAccesibilidadGlobal.innerHTML = `<i class="fas fa-comment-dots text-xl"></i><span> Escuchó: "${comando}"</span>`;
+            let comandoValido = true;
+
+            // --- RUTAS DE NAVEGACIÓN ---
+            if (comando.includes("clasificar") || comando.includes("ayuda") || comando.includes("cámara")) {
+                window.location.href = "/ayuda-externa/";
+            } else if (comando.includes("inicio") || comando.includes("principal") || comando.includes("home")) {
+                window.location.href = "/";
+            } else if (comando.includes("contabilidad") || comando.includes("finanzas") || comando.includes("dinero")) {
+                window.location.href = "/contabilidad/";
+            } else if (comando.includes("logro") || comando.includes("trofeo") || comando.includes("recompensa")) {
+                window.location.href = "/logros/";
+            } else if (comando.includes("panel") || comando.includes("control") || comando.includes("administración") || comando.includes("admin")) {
+                window.location.href = "/panel_admin/";
+            } else if (comando.includes("cerrar sesión") || comando.includes("salir") || comando.includes("desconectar")) {
+                window.location.href = "/logout_custom/"; 
+            } else {
+                comandoValido = false;
+                setTimeout(() => {
+                    if(intencionMicrofonoGlobal && !esperandoInteraccion) {
+                        btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+                    }
+                }, 2000);
+            }
+        };
+
+        reconocimientoGlobal.onerror = function(event) {
+            if (event.error === 'not-allowed') {
+                console.warn("Chrome bloqueó el auto-inicio. Requiere un clic.");
+                esperandoInteraccion = true;
+                btnAccesibilidadGlobal.style.backgroundColor = "#f59e0b"; 
+                btnAccesibilidadGlobal.style.borderColor = "#f59e0b";
+                btnAccesibilidadGlobal.style.color = "#ffffff";
+                btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-hand-pointer animate-bounce"></i><span> Clic en pantalla para reanudar</span>';
+            }
+        };
+
+        reconocimientoGlobal.onend = function() {
+            if (intencionMicrofonoGlobal && !esperandoInteraccion) {
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            } else if (!intencionMicrofonoGlobal) {
+                btnAccesibilidadGlobal.style.backgroundColor = "rgba(30, 41, 59, 0.9)";
+                btnAccesibilidadGlobal.style.borderColor = "#10b981";
+                btnAccesibilidadGlobal.style.color = "#10b981";
+                btnAccesibilidadGlobal.innerHTML = contenidoOriginalBotonGlobal;
+            }
+        };
+    }
+
+    // 1. AUTO-ARRANQUE CON RETRASO TÁCTICO PARA EL HOME
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            if (intencionMicrofonoGlobal && reconocimientoGlobal) {
+                console.log("Intentando auto-encendido después de medio segundo...");
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            }
+        }, 500);
+    });
+
+    // 2. DESPERTADOR CON CLIC
+    document.addEventListener('click', () => {
+        if (esperandoInteraccion && intencionMicrofonoGlobal) {
+            try { reconocimientoGlobal.start(); } catch(e) {}
         }
     });
 
-    document.addEventListener('keyup', (event) => {
-        delete teclasPresionadas[event.key.toLowerCase()];
+    // 3. DESPERTADOR CON TECLA
+    document.addEventListener('keydown', (event) => {
+        if (event.key.toLowerCase() !== 'f' && event.key.toLowerCase() !== 'j') {
+            if (esperandoInteraccion && intencionMicrofonoGlobal) {
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            }
+        }
+    });
+
+    // 4. CONTROL MANUAL F+J
+    document.addEventListener('keydown', function(event) {
+        if (event.repeat) return; 
+        if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
+        
+        teclasActivasGlobal[event.key.toLowerCase()] = true;
+
+        if (teclasActivasGlobal['f'] && teclasActivasGlobal['j']) {
+            event.preventDefault(); 
+            
+            if (!intencionMicrofonoGlobal) {
+                intencionMicrofonoGlobal = true;
+                sessionStorage.setItem('microfonoInmortal', 'true');
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            } else {
+                intencionMicrofonoGlobal = false;
+                esperandoInteraccion = false;
+                sessionStorage.setItem('microfonoInmortal', 'false');
+                reconocimientoGlobal.stop();
+            }
+        }
+    });
+
+    document.addEventListener('keyup', function(event) {
+        teclasActivasGlobal[event.key.toLowerCase()] = false;
     });
 </script>
+
 </body>
 </html>

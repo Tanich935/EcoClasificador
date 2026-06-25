@@ -13,7 +13,7 @@ class Procesador:
 
     def darApiKey(self, apikey):
         genai.configure(api_key=apikey)
-        self.model = genai.GenerativeModel(model_name="gemini-2.5-flash")
+        self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     def activarVoz(self):
         self.activarTTS = True
@@ -48,7 +48,11 @@ class Procesador:
                 return "Error", "Formato incorrecto de la IA: " + resultado
                 
         except Exception as e:
-            return "Error", "Fallo al procesar la imagen: " + str(e)
+            print(f"🔥 ERROR INTERNO EN LA IA: {e}") 
+            import traceback
+            traceback.print_exc()
+            
+            return "Error", "Error"
 
     def contarObjetos(self, ruta_imagen, tipo_objeto="botellas"):
         from PIL import Image

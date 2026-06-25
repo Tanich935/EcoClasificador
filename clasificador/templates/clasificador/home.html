@@ -1,205 +1,309 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>♻️ EcoClasificador IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-        }
-        .hero {
-            background: linear-gradient(rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-        }
-        .upload-area {
-            transition: all 0.4s ease;
-        }
-        .upload-area:hover {
-            border-color: #10b981;
-            background-color: rgba(16, 185, 129, 0.1);
-            transform: scale(1.02);
-        }
-    </style>
-</head>
-<body class="min-h-screen text-white">
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>♻️ EcoClasificador IA</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        <style>
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            }
+            .hero {
+                background: linear-gradient(rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            }
+            .upload-area {
+                transition: all 0.4s ease;
+            }
+            .upload-area:hover {
+                border-color: #10b981;
+                background-color: rgba(16, 185, 129, 0.1);
+                transform: scale(1.02);
+            }
+        </style>
+    </head>
+    <body class="min-h-screen text-white">
 
-<div class="container mx-auto px-6 py-12">
+    <div class="container mx-auto px-6 py-12">
 
-    <div class="text-center mb-16">
-        <div class="flex items-center justify-center gap-4 mb-4">
-            <i class="fas fa-recycle text-6xl text-emerald-400"></i>
-            <h1 class="text-6xl font-bold tracking-tight">EcoClasificador</h1>
-        </div>
-        <p class="text-2xl text-emerald-300">Inteligencia Artificial para el Medio Ambiente</p>
-    </div>
-
-    {% if mensaje %}
-    <div class="max-w-2xl mx-auto mb-10 p-5 rounded-2xl text-center text-lg font-medium
-        {% if 'Éxito' in mensaje or '✅' in mensaje %}bg-emerald-600{% else %}bg-red-600{% endif %}">
-        {{ mensaje|safe }}
-    </div>
-    {% endif %}
-
-    {% if request.GET.error %}
-    <div class="max-w-2xl mx-auto mb-10 p-5 rounded-2xl text-center text-lg font-medium bg-red-600">
-        ❌ {{ request.GET.error }}
-    </div>
-    {% endif %}
-
-    <div class="max-w-2xl mx-auto">
-        <div class="bg-slate-800/70 backdrop-blur-2xl border border-slate-600 rounded-3xl p-12 upload-area">
-
-            <div class="text-center mb-10">
-                <i class="fas fa-camera-retro text-7xl text-emerald-400 mb-6"></i>
-                <h2 class="text-4xl font-bold mb-3">¿Qué residuo vas a clasificar?</h2>
-                <p class="text-gray-400 text-lg">Sube una foto clara del objeto y nuestra IA lo identificará</p>
+        <div class="text-center mb-16">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <i class="fas fa-recycle text-6xl text-emerald-400"></i>
+                <h1 class="text-6xl font-bold tracking-tight">EcoClasificador</h1>
             </div>
+            <p class="text-2xl text-emerald-300">Inteligencia Artificial para el Medio Ambiente</p>
+        </div>
 
-            <form method="post" action="{% url 'clasificar_imagen' %}" enctype="multipart/form-data">
-                {% csrf_token %}
+        {% if mensaje %}
+        <div class="max-w-2xl mx-auto mb-10 p-5 rounded-2xl text-center text-lg font-medium
+            {% if 'Éxito' in mensaje or '✅' in mensaje %}bg-emerald-600{% else %}bg-red-600{% endif %}">
+            {{ mensaje|safe }}
+        </div>
+        {% endif %}
 
-                <div class="border-2 border-dashed border-slate-500 hover:border-emerald-400 rounded-3xl p-16 text-center upload-area">
-                    <input type="file" name="imagen" id="file-input" accept="image/*" required class="hidden">
-                    <label for="file-input" class="cursor-pointer block">
-                        <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-6"></i>
-                        <p class="text-xl font-semibold mb-2">Haz clic para seleccionar una imagen</p>
-                        <p class="text-gray-500">o arrastra y suelta aquí</p>
-                    </label>
+        {% if request.GET.error %}
+        <div class="max-w-2xl mx-auto mb-10 p-5 rounded-2xl text-center text-lg font-medium bg-red-600">
+            ❌ {{ request.GET.error }}
+        </div>
+        {% endif %}
+
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-slate-800/70 backdrop-blur-2xl border border-slate-600 rounded-3xl p-12 upload-area">
+
+                <div class="text-center mb-10">
+                    <i class="fas fa-camera-retro text-7xl text-emerald-400 mb-6"></i>
+                    <h2 class="text-4xl font-bold mb-3">¿Qué residuo vas a clasificar?</h2>
+                    <p class="text-gray-400 text-lg">Sube una foto clara del objeto y nuestra IA lo identificará</p>
                 </div>
 
-                <button type="submit" 
-                        class="mt-10 w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
-                               py-6 text-2xl font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg transition-all">
-                    <i class="fas fa-brain"></i>
-                    CLASIFICAR CON INTELIGENCIA ARTIFICIAL
-                </button>
-            </form>
-        </div>
-    </div>
+                <form method="post" action="{% url 'clasificar_imagen' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
 
-    <div class="mt-20">
-        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-            <i class="fas fa-history text-emerald-400"></i>
-            Últimas Clasificaciones
-        </h2>
+                    <div class="border-2 border-dashed border-slate-500 hover:border-emerald-400 rounded-3xl p-16 text-center upload-area">
+                        <input type="file" name="imagen" id="file-input" accept="image/*" required class="hidden">
+                        <label for="file-input" class="cursor-pointer block">
+                            <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-6"></i>
+                            <p class="text-xl font-semibold mb-2">Haz clic para seleccionar una imagen</p>
+                            <p class="text-gray-500">o arrastra y suelta aquí</p>
+                        </label>
+                    </div>
 
-        {% if registros %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for reg in registros %}
-            <div class="bg-slate-800/70 border border-slate-700 rounded-3xl overflow-hidden hover:border-emerald-500 transition-all">
-                {% if reg.imagen %}
-                    <img src="{{ reg.imagen.url }}" class="w-full h-52 object-cover">
-                {% endif %}
-                <div class="p-6">
-                    <h3 class="font-bold text-2xl mb-3">{{ reg.objeto }}</h3>
-                    <span class="inline-block px-6 py-2.5 rounded-2xl text-sm font-bold
-                        {% if reg.categoria == 'RECICLABLE' %}bg-emerald-500
-                        {% elif reg.categoria == 'NO_RECICLABLE' %}bg-red-500
-                        {% elif reg.categoria == 'APROVECHABLE' %}bg-blue-500
-                        {% else %}bg-purple-500{% endif %}">
-                        {{ reg.categoria }}
-                    </span>
-                    <p class="text-xs text-gray-400 mt-5">{{ reg.fecha|date:"d/m/Y H:i" }}</p>
-                </div>
+                    <button type="submit" 
+                            class="mt-10 w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
+                                py-6 text-2xl font-bold rounded-2xl flex items-center justify-center gap-3 shadow-lg transition-all">
+                        <i class="fas fa-brain"></i>
+                        CLASIFICAR CON INTELIGENCIA ARTIFICIAL
+                    </button>
+                </form>
             </div>
-            {% endfor %}
         </div>
-        {% else %}
-        <div class="bg-slate-800/50 border border-dashed border-slate-600 rounded-3xl py-20 text-center">
-            <p class="text-gray-400 text-xl">Aún no hay clasificaciones...</p>
-            <p class="text-emerald-400 mt-3">¡Sube tu primera imagen!</p>
+
+        <div class="mt-20">
+            <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                <i class="fas fa-history text-emerald-400"></i>
+                Últimas Clasificaciones
+            </h2>
+
+            {% if registros %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for reg in registros %}
+                <div class="bg-slate-800/70 border border-slate-700 rounded-3xl overflow-hidden hover:border-emerald-500 transition-all">
+                    {% if reg.imagen %}
+                        <img src="{{ reg.imagen.url }}" class="w-full h-52 object-cover">
+                    {% endif %}
+                    <div class="p-6">
+                        <h3 class="font-bold text-2xl mb-3">{{ reg.objeto }}</h3>
+                        <span class="inline-block px-6 py-2.5 rounded-2xl text-sm font-bold
+                            {% if reg.categoria == 'RECICLABLE' %}bg-emerald-500
+                            {% elif reg.categoria == 'NO_RECICLABLE' %}bg-red-500
+                            {% elif reg.categoria == 'APROVECHABLE' %}bg-blue-500
+                            {% else %}bg-purple-500{% endif %}">
+                            {{ reg.categoria }}
+                        </span>
+                        <p class="text-xs text-gray-400 mt-5">{{ reg.fecha|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="bg-slate-800/50 border border-dashed border-slate-600 rounded-3xl py-20 text-center">
+                <p class="text-gray-400 text-xl">Aún no hay clasificaciones...</p>
+                <p class="text-emerald-400 mt-3">¡Sube tu primera imagen!</p>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
+
+    <div class="fixed top-6 right-6 z-50">
+        
+        <button onclick="toggleMenu()"
+            class="bg-slate-800 hover:bg-slate-700 p-4 rounded-full shadow-xl">
+            <i class="fas fa-ellipsis-v text-2xl text-white"></i>
+        </button>
+
+        <div id="menuModulos"
+            class="hidden absolute right-0 mt-3 w-64 bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-600">
+
+            <a href="{% url 'home' %}"
+            class="block px-6 py-4 hover:bg-slate-700 transition">
+                🏠 Inicio
+            </a>
+
+            <a href="{% url 'contabilidad_dashboard' %}"
+            class="block px-6 py-4 hover:bg-slate-700 transition">
+                📊 Contabilidad
+            </a>
+
+            <a href="{% url 'logros' %}"
+            class="block px-6 py-4 hover:bg-slate-700 transition">
+                🏆 Logros
+            </a>
+
+            <hr class="border-slate-600">
+
+            <a href="{% url 'home' %}"
+            class="block px-6 py-4 hover:bg-slate-700 transition">
+                ♻️ Clasificar Residuo
+            </a>
+
+            <hr class="border-slate-600">
+
+            {% if request.user.is_staff %}
+            <a href="{% url 'panel_admin' %}"
+            class="block px-6 py-4 bg-emerald-600 hover:bg-emerald-500 font-bold text-white transition">
+                ⚙️ Panel de Control
+            </a>
+            {% endif %}
+
+            {% if not request.user.is_authenticated %}
+            <a href="/panel/login/?next=/panel/"
+            class="block px-6 py-4 text-emerald-400 hover:bg-slate-700 font-medium transition">
+                🔑 Iniciar Sesión (Admin)
+            </a>
+            {% else %}
+            <a href="{% url 'logout_custom' %}"
+            class="block px-6 py-4 text-red-400 hover:bg-slate-700 font-medium transition">
+                🚪 Cerrar Sesión
+            </a>
+            {% endif %}
+
+        </div>
     </div>
 
- <div class="fixed top-6 right-6 z-50">
-    
-    <button onclick="toggleMenu()"
-        class="bg-slate-800 hover:bg-slate-700 p-4 rounded-full shadow-xl">
-        <i class="fas fa-ellipsis-v text-2xl text-white"></i>
-    </button>
+    <script>
+    function toggleMenu() {
+        document.getElementById("menuModulos")
+                .classList.toggle("hidden");
+    }
+    </script>
 
-    <div id="menuModulos"
-         class="hidden absolute right-0 mt-3 w-64 bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-600">
-
-        <a href="{% url 'home' %}"
-           class="block px-6 py-4 hover:bg-slate-700 transition">
-            🏠 Inicio
+    <div style="position: fixed; bottom: 30px; left: 30px; z-index: 50;">
+        <a href="/ayuda-externa/" id="btn-accesibilidad" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <i class="fas fa-universal-access text-xl"></i>
+            <span>Modo Accesibilidad (F + J)</span>
         </a>
-
-        <a href="{% url 'contabilidad_dashboard' %}"
-           class="block px-6 py-4 hover:bg-slate-700 transition">
-            📊 Contabilidad
-        </a>
-
-        <a href="{% url 'logros' %}"
-           class="block px-6 py-4 hover:bg-slate-700 transition">
-            🏆 Logros
-        </a>
-
-        <hr class="border-slate-600">
-
-        <a href="{% url 'home' %}"
-           class="block px-6 py-4 hover:bg-slate-700 transition">
-            ♻️ Clasificar Residuo
-        </a>
-
-        <!-- --- ZONA DE SEGURIDAD Y ADMINISTRACIÓN --- -->
-        <hr class="border-slate-600">
-
-        {% if request.user.is_staff %}
-        <a href="{% url 'panel_admin' %}"
-           class="block px-6 py-4 bg-emerald-600 hover:bg-emerald-500 font-bold text-white transition">
-            ⚙️ Panel de Control
-        </a>
-        {% endif %}
-
-        {% if not request.user.is_authenticated %}
-        <a href="/panel/login/?next=/panel/"
-           class="block px-6 py-4 text-emerald-400 hover:bg-slate-700 font-medium transition">
-            🔑 Iniciar Sesión (Admin)
-        </a>
-        {% else %}
-        <!-- Cambiamos el link del admin por nuestro logout custom -->
-        <a href="{% url 'logout_custom' %}"
-           class="block px-6 py-4 text-red-400 hover:bg-slate-700 font-medium transition">
-            🚪 Cerrar Sesión
-        </a>
-        {% endif %}
-
     </div>
-</div>
 
-<script>
-function toggleMenu() {
-    document.getElementById("menuModulos")
-            .classList.toggle("hidden");
-}
-</script>
+    Ah, el clásico comportamiento rebelde de Google Chrome. Tienes toda la razón, Chrome tiene un mecanismo de seguridad interno que obliga al micrófono a apagarse si hay un silencio absoluto durante unos 10 a 15 segundos, ignorando nuestro continuous = true.
 
-<div style="position: fixed; bottom: 30px; left: 30px; z-index: 50;">
-    <a href="/ayuda-externa/" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-        <i class="fas fa-universal-access text-xl"></i>
-        <span>Modo Accesibilidad (F + J)</span>
-    </a>
-</div>
+Pero como buenos informáticos, le vamos a hacer una trampa al navegador.
 
-<script>
-    let teclasPresionadas = {};
+El truco (o hack) es decirle al código: "Si el micrófono se apaga por sí solo (por silencio), vuélvelo a encender inmediatamente a la fuerza. Solo déjalo apagado si yo presiono F+J".
 
-    document.addEventListener('keydown', (event) => {
-        if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
-        teclasPresionadas[event.key.toLowerCase()] = true;
-        if (teclasPresionadas['f'] && teclasPresionadas['j']) {
-            window.location.href = '/ayuda-externa/';
+Aquí tienes el script con la resurrección automática del micrófono. Reemplaza el bloque anterior en tu home.html por este:
+
+HTML
+    <script>
+        let teclasActivas = {};
+        let intencionMicrofono = false;
+        let reconocimiento; 
+        
+        const btnAccesibilidad = document.getElementById('btn-accesibilidad');
+        const contenidoOriginalBoton = btnAccesibilidad.innerHTML;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            reconocimiento = new SpeechRecognition();
+            reconocimiento.lang = 'es-ES'; 
+            reconocimiento.continuous = true; 
+            
+            reconocimiento.onstart = function() {
+                btnAccesibilidad.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
+                btnAccesibilidad.style.borderColor = "#ef4444";
+                btnAccesibilidad.style.color = "#ffffff";
+                btnAccesibilidad.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+            };
+
+            reconocimiento.onresult = function(event) {
+                const ultimoIndice = event.results.length - 1;
+                // Obtenemos el texto y le quitamos espacios extra
+                const comando = event.results[ultimoIndice][0].transcript.toLowerCase().trim();
+                console.log("Comando escuchado: ", comando);
+
+                // ¡MEJORA VISUAL PARA LA DEFENSA! Muestra en el botón lo que escuchó
+                btnAccesibilidad.innerHTML = `<i class="fas fa-comment-dots text-xl"></i><span> Escuchó: "${comando}"</span>`;
+
+                let comandoValido = true;
+
+                // --- RUTAS DE NAVEGACIÓN ---
+                if (comando.includes("clasificar") || comando.includes("ayuda") || comando.includes("cámara")) {
+                    window.location.href = "/ayuda-externa/";
+                
+                } else if (comando.includes("inicio") || comando.includes("principal") || comando.includes("home")) {
+                    window.location.href = "{% url 'home' %}";
+                
+                } else if (comando.includes("contabilidad") || comando.includes("finanzas") || comando.includes("dinero")) {
+                    window.location.href = "{% url 'contabilidad_dashboard' %}";
+                
+                } else if (comando.includes("logro") || comando.includes("trofeo") || comando.includes("recompensa")) {
+                    window.location.href = "{% url 'logros' %}";
+                
+                } else if (comando.includes("panel") || comando.includes("control") || comando.includes("administración") || comando.includes("admin")) {
+                    window.location.href = "{% url 'panel_admin' %}";
+                
+                } else if (comando.includes("cerrar sesión") || comando.includes("salir") || comando.includes("desconectar")) {
+                    window.location.href = "{% url 'logout_custom' %}";
+                
+                } else {
+                    comandoValido = false;
+                    // Si se equivoca, vuelve a decir "Escuchando..." después de 2 segundos
+                    setTimeout(() => {
+                        if(intencionMicrofono) {
+                            btnAccesibilidad.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+                        }
+                    }, 2000);
+                }
+
+                // Apagamos legalmente si saltamos de página
+                if(comandoValido) {
+                    intencionMicrofono = false;
+                    reconocimiento.stop();
+                }
+            };
+
+            reconocimiento.onend = function() {
+                if (intencionMicrofono) {
+                    try { reconocimiento.start(); } catch(e) {}
+                } else {
+                    btnAccesibilidad.style.backgroundColor = "rgba(30, 41, 59, 0.9)";
+                    btnAccesibilidad.style.borderColor = "#10b981";
+                    btnAccesibilidad.style.color = "#10b981";
+                    btnAccesibilidad.innerHTML = contenidoOriginalBoton;
+                }
+            };
         }
-    });
 
-    document.addEventListener('keyup', (event) => {
-        delete teclasPresionadas[event.key.toLowerCase()];
-    });
-</script>
-</body>
-</html>
+        // 2. Control Maestro con F + J
+        document.addEventListener('keydown', function(event) {
+            // ¡ESTA ES LA LÍNEA MÁGICA QUE ARREGLA EL ERROR! 
+            // Ignora si dejas la tecla presionada (evita que se encienda y apague a lo loco)
+            if (event.repeat) return; 
+
+            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
+            
+            teclasActivas[event.key.toLowerCase()] = true;
+
+            if (teclasActivas['f'] && teclasActivas['j']) {
+                event.preventDefault(); 
+                
+                if (!reconocimiento) {
+                    alert("Tu navegador no soporta voz. Usa Google Chrome.");
+                    return;
+                }
+
+                if (!intencionMicrofono) {
+                    intencionMicrofono = true;
+                    try { reconocimiento.start(); } catch(e) {}
+                } else {
+                    intencionMicrofono = false;
+                    reconocimiento.stop();
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            teclasActivas[event.key.toLowerCase()] = false;
+        });
+    </script>
+    </body>
+    </html>

@@ -8,94 +8,731 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #121826; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { background-color: #1e293b; border: none; border-radius: 12px; }
-        .card-header { background-color: #0f172a; border-radius: 12px 12px 0 0 !important; }
-        .table { color: #e2e8f0; }
-        .nav-tabs .nav-link { color: #94a3b8; border: none; }
-        .nav-tabs .nav-link.active { background-color: #1e293b; color: #10b981; border-bottom: 3px solid #10b981; font-weight: bold; }
-        .form-control { background-color: #0f172a; color: white; border: 1px solid #334155; }
+        :root {
+            --bg-base:      #0b1120;
+            --bg-surface:   #131f35;
+            --bg-card:      #1a2a45;
+            --bg-inset:     #0f1b2d;
+            --accent:       #10b981;
+            --accent-dim:   #059669;
+            --accent-glow:  rgba(16,185,129,.15);
+            --info:         #38bdf8;
+            --warn:         #f59e0b;
+            --danger:       #ef4444;
+            --text-primary: #e2e8f0;
+            --text-muted:   #64748b;
+            --border:       #1e3a5f;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+        .topbar-brand .icon-ring {
+            width: 36px; height: 36px;
+            background: var(--accent-glow);
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            display: grid; place-items: center;
+            color: var(--accent);
+            font-size: .9rem;
+        }
+        .topbar-brand span { color: var(--text-primary); }
+        .topbar-brand em { color: var(--accent); font-style: normal; }
+
+        /* ── Tabs ── */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            background: var(--bg-surface);
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            padding: .85rem 1.25rem;
+            font-size: .875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            transition: color .2s, border-color .2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ── Layout ── */
+        .page-body { padding: 2rem; max-width: 1280px; margin: 0 auto; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-inset);
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .card-body { padding: 1.5rem; }
+
+        /* ── Stat cards ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 14px 14px 0 0;
+        }
+        .stat-card.green::before  { background: var(--accent); }
+        .stat-card.blue::before   { background: var(--info); }
+        .stat-card.yellow::before { background: var(--warn); }
+        .stat-card.red::before    { background: var(--danger); }
+
+        .stat-label {
+            font-size: .75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-muted);
+            margin-bottom: .5rem;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -.03em;
+        }
+        .stat-card.green  .stat-value { color: var(--accent); }
+        .stat-card.blue   .stat-value { color: var(--info); }
+        .stat-card.yellow .stat-value { color: var(--warn); }
+        .stat-card.red    .stat-value { color: var(--danger); }
+
+        .stat-sub {
+            font-size: .75rem;
+            color: var(--text-muted);
+            margin-top: .4rem;
+        }
+        .stat-icon {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            opacity: .06;
+        }
+
+        /* ── Table ── */
+        .eco-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: .875rem;
+        }
+        .eco-table thead th {
+            background: var(--bg-inset);
+            padding: .75rem 1rem;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .eco-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+        }
+        .eco-table tbody tr:hover { background: rgba(255,255,255,.03); }
+        .eco-table tbody tr:last-child { border-bottom: none; }
+        .eco-table td { padding: .9rem 1rem; vertical-align: middle; }
+
+        /* ── Badges ── */
+        .badge-role {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .25rem .6rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+        .badge-role.admin {
+            background: rgba(245,158,11,.1);
+            color: var(--warn);
+            border: 1px solid rgba(245,158,11,.25);
+        }
+        .badge-role.operario {
+            background: rgba(56,189,248,.1);
+            color: var(--info);
+            border: 1px solid rgba(56,189,248,.25);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .2rem .55rem;
+            border-radius: 20px;
+        }
+        .badge-status.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+        .badge-status.inactive {
+            background: rgba(239,68,68,.1);
+            color: var(--danger);
+        }
+        .badge-status .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* ── Forms ── */
+        .eco-input {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: .55rem .85rem;
+            font-size: .875rem;
+            width: 100%;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .eco-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .eco-input::placeholder { color: var(--text-muted); }
+
+        label.eco-label {
+            display: block;
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: .35rem;
+        }
+
+        /* ── Buttons ── */
+        .btn-eco {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .55rem 1.1rem;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity .2s, box-shadow .2s;
+            white-space: nowrap;
+        }
+        .btn-eco:hover { opacity: .88; }
+        .btn-eco:active { opacity: .75; }
+
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-outline-danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        .btn-outline-success {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        .btn-outline-light {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        /* ── Checkbox toggle ── */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .875rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-wrap input[type="checkbox"] {
+            appearance: none;
+            width: 36px; height: 20px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .2s, border-color .2s;
+        }
+        .toggle-wrap input[type="checkbox"]::after {
+            content: '';
+            position: absolute;
+            width: 14px; height: 14px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            top: 2px; left: 2px;
+            transition: transform .2s, background .2s;
+        }
+        .toggle-wrap input[type="checkbox"]:checked {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+        }
+        .toggle-wrap input[type="checkbox"]:checked::after {
+            background: var(--accent);
+            transform: translateX(16px);
+        }
+
+        /* ── Params ── */
+        .param-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-row:last-of-type { border-bottom: none; }
+        .param-info { flex: 1; min-width: 0; }
+        .param-name {
+            font-size: .875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: .15rem;
+        }
+        .param-desc { font-size: .75rem; color: var(--text-muted); }
+        .param-input-wrap { flex-shrink: 0; width: 160px; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 2.5rem; margin-bottom: .75rem; opacity: .3; }
+        .empty-state p { font-size: .875rem; margin: 0; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .topbar { padding: 1rem; }
+            .page-body { padding: 1rem; }
+            .tab-nav { padding: 0 1rem; overflow-x: auto; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .param-row { flex-wrap: wrap; }
+            .param-input-wrap { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>⚙️ Panel de Control Global</h2>
-        <a href="/" class="btn btn-outline-light">Volver al Inicio</a>
+<header class="topbar">
+    <div class="topbar-brand">
+        <div class="icon-ring"><i class="fas fa-leaf"></i></div>
+        <span>Eco<em>Clasificador</em></span>
+        <span style="color:var(--text-muted);font-size:.75rem;font-weight:400;margin-left:.25rem">/ Panel de Control Global</span>
     </div>
+    <a href="/" class="btn-eco btn-outline-light">
+        <i class="fas fa-arrow-left fa-xs"></i> Volver al Inicio
+    </a>
+</header>
 
-    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#monitoreo-pane">📊 Monitoreo</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#usuarios-pane">👥 Usuarios</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#parametros-pane">🔧 Parámetros</button></li>
-    </ul>
+<nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('monitoreo', this)">
+        <i class="fas fa-chart-line fa-xs"></i> Monitoreo
+    </button>
+    <button class="tab-btn" onclick="switchTab('usuarios', this)">
+        <i class="fas fa-users fa-xs"></i> Usuarios
+    </button>
+    <button class="tab-btn" onclick="switchTab('parametros', this)">
+        <i class="fas fa-sliders fa-xs"></i> Parámetros
+    </button>
+</nav>
 
-    <div class="tab-content">
-        <!-- PESTAÑA 1 -->
-        <div class="tab-pane fade show active" id="monitoreo-pane">
-            <div class="row">
-                <div class="col-md-6 mb-3"><div class="card p-4 text-center"><h6>Transacciones</h6><h1 class="text-success">{{ total_escaneos }}</h1></div></div>
-                <div class="col-md-6 mb-3"><div class="card p-4 text-center"><h6>Usuarios Activos</h6><h1 class="text-info">{{ total_usuarios }}</h1></div></div>
+<div class="page-body">
+
+    <div class="tab-pane active" id="tab-monitoreo">
+
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <div class="stat-label">Transacciones Totales</div>
+                <div class="stat-value">{{ total_escaneos|default:"0" }}</div>
+                <div class="stat-sub">Registros procesados en el sistema</div>
+                <i class="fas fa-recycle stat-icon"></i>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">Usuarios Activos</div>
+                <div class="stat-value">{{ total_usuarios|default:"0" }}</div>
+                <div class="stat-sub">Cuentas habilitadas</div>
+                <i class="fas fa-users stat-icon"></i>
             </div>
         </div>
 
-        <!-- PESTAÑA 2: USUARIOS -->
-        <div class="tab-pane fade" id="usuarios-pane">
-            <div class="card p-4 mb-4" style="background: #0f172a;">
-                <h6 class="text-white mb-3">Registrar Nuevo Usuario</h6>
-                <form action="{% url 'crear_operario' %}" method="POST" class="row g-3 align-items-center">
+    </div><div class="tab-pane" id="tab-usuarios">
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-user-plus"></i> Registrar Nuevo Operario
+            </div>
+            <div class="card-body">
+                <form action="{% url 'crear_operario' %}" method="POST">
                     {% csrf_token %}
-                    <div class="col-md-4"><input type="text" name="username" class="form-control" placeholder="Usuario" required></div>
-                    <div class="col-md-4"><input type="password" name="password" class="form-control" placeholder="Contraseña" required></div>
-                    <div class="col-md-2 form-check d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" name="is_admin" id="isAdminCheck">
-                        <label class="form-check-label ms-2" for="isAdminCheck">Es Admin</label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:1rem;align-items:flex-end;">
+                        <div>
+                            <label class="eco-label">Nombre de usuario</label>
+                            <input type="text" name="username" class="eco-input" placeholder="ej. admin_nuevo" required autocomplete="off">
+                        </div>
+                        <div>
+                            <label class="eco-label">Contraseña</label>
+                            <input type="password" name="password" class="eco-input" placeholder="Mínimo 8 caracteres" required autocomplete="new-password">
+                        </div>
+                        <div style="padding-bottom:.1rem;">
+                            <label class="toggle-wrap">
+                                <input type="checkbox" name="is_admin" id="isAdminCheck">
+                                <span style="color:var(--text-primary);font-size:.8rem;">Es Administrador</span>
+                            </label>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn-eco btn-primary" style="width:100%;">
+                                <i class="fas fa-plus fa-xs"></i> Crear
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-2"><button type="submit" class="btn btn-success w-100">Crear</button></div>
                 </form>
             </div>
-            <table class="table table-dark">
-                <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr></thead>
-                <tbody>
-                    {% for u in usuarios %}
-                    <tr>
-                        <td>{{ u.username }}</td>
-                        <td>{% if u.is_superuser %}Admin{% else %}Operario{% endif %}</td>
-                        <td>{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td>
-                        <td>
-                            {% if not u.is_superuser %}
-                            <form action="{% url 'toggle_usuario' u.id %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
-                                    {% if u.is_active %}Dar de Baja{% else %}Dar de Alta{% endif %}
-                                </button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
 
-        <!-- PESTAÑA 3 -->
-        <div class="tab-pane fade" id="parametros-pane">
-            <div class="card p-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-users"></i> Directorio de Usuarios
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="eco-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:.6rem;">
+                                    <div style="width:30px;height:30px;border-radius:8px;background:var(--bg-inset);
+                                                border:1px solid var(--border);display:grid;place-items:center;
+                                                font-size:.7rem;color:var(--text-muted);flex-shrink:0;">
+                                        {{ u.username|first|upper }}
+                                    </div>
+                                    <span style="font-weight:600;">{{ u.username }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if u.is_superuser %}
+                                <span class="badge-role admin"><i class="fas fa-crown fa-xs"></i> Admin</span>
+                                {% else %}
+                                <span class="badge-role operario"><i class="fas fa-hard-hat fa-xs"></i> Operario</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                <span class="badge-status active"><span class="dot"></span> Activo</span>
+                                {% else %}
+                                <span class="badge-status inactive"><span class="dot"></span> Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not u.is_superuser %}
+                                <form action="{% url 'toggle_usuario' u.id %}" method="POST" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-eco {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                                        <i class="fas fa-{% if u.is_active %}ban{% else %}check{% endif %} fa-xs"></i>
+                                        {% if u.is_active %}Dar de Baja{% else %}Dar de Alta{% endif %}
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span style="color:var(--text-muted);font-size:.75rem;">Administrador Protegido</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-users-slash"></i>
+                                    <p>No hay usuarios registrados.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><div class="tab-pane" id="tab-parametros">
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-sliders"></i> Parámetros Globales del Sistema
+            </div>
+            <div class="card-body">
                 <form action="{% url 'guardar_parametros' %}" method="POST">
                     {% csrf_token %}
-                    {% for param in parametros %}
-                    <div class="mb-3">
-                        <label>{{ param.nombre }}</label>
-                        <input type="number" step="any" class="form-control" name="{{ param.nombre }}" value="{{ param.valor|unlocalize }}">
+
+                    {% if parametros %}
+                        {% for param in parametros %}
+                        <div class="param-row">
+                            <div class="param-info">
+                                <div class="param-name">{{ param.nombre }}</div>
+                                <div class="param-desc">Valor del sistema en formato decimal (Bs/Kg o métricas globales).</div>
+                            </div>
+                            <div class="param-input-wrap">
+                                <input type="number" step="any" class="eco-input"
+                                       name="{{ param.nombre }}"
+                                       value="{{ param.valor|unlocalize }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-sliders"></i>
+                            <p>No hay parámetros configurados actualmente.</p>
+                        </div>
+                    {% endif %}
+
+                    {% if parametros %}
+                    <div style="margin-top:1.75rem;display:flex;align-items:center;gap:1rem;">
+                        <button type="submit" class="btn-eco btn-primary">
+                            <i class="fas fa-floppy-disk fa-xs"></i> Guardar Cambios
+                        </button>
                     </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                    {% endif %}
                 </form>
             </div>
         </div>
+
+    </div></div><script>
+// Sistema personalizado para navegar por los tabs sin necesidad de Bootstrap JS pesado
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+
+<div style="position: fixed; bottom: 30px; left: 30px; z-index: 9999;">
+        <a href="javascript:void(0)" id="btn-accesibilidad" style="background-color: rgba(30, 41, 59, 0.9); border: 2px solid #10b981; color: #10b981; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <i class="fas fa-universal-access text-xl"></i>
+            <span>Modo Accesibilidad (F + J)</span>
+        </a>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let teclasActivasGlobal = {};
+        // Memoria del navegador
+        let intencionMicrofonoGlobal = sessionStorage.getItem('microfonoInmortal') === 'true';
+        let reconocimientoGlobal;
+        let esperandoInteraccion = false;
+        
+        const btnAccesibilidadGlobal = document.getElementById('btn-accesibilidad');
+        const contenidoOriginalBotonGlobal = btnAccesibilidadGlobal.innerHTML;
+
+        const SpeechRecognitionGlobal = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognitionGlobal) {
+            reconocimientoGlobal = new SpeechRecognitionGlobal();
+            reconocimientoGlobal.lang = 'es-ES'; 
+            reconocimientoGlobal.continuous = true; 
+            
+            reconocimientoGlobal.onstart = function() {
+                esperandoInteraccion = false;
+                btnAccesibilidadGlobal.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
+                btnAccesibilidadGlobal.style.borderColor = "#ef4444";
+                btnAccesibilidadGlobal.style.color = "#ffffff";
+                btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+            };
+
+            reconocimientoGlobal.onresult = function(event) {
+                const ultimoIndice = event.results.length - 1;
+                const comando = event.results[ultimoIndice][0].transcript.toLowerCase().trim();
+                console.log("Comando escuchado: ", comando);
+                
+                btnAccesibilidadGlobal.innerHTML = `<i class="fas fa-comment-dots text-xl"></i><span> Escuchó: "${comando}"</span>`;
+                let comandoValido = true;
+
+                if (comando.includes("clasificar") || comando.includes("ayuda") || comando.includes("cámara")) {
+                    window.location.href = "/ayuda-externa/";
+                } else if (comando.includes("inicio") || comando.includes("principal") || comando.includes("home")) {
+                    window.location.href = "/";
+                } else if (comando.includes("contabilidad") || comando.includes("finanzas") || comando.includes("dinero")) {
+                    window.location.href = "/contabilidad/";
+                } else if (comando.includes("logro") || comando.includes("trofeo") || comando.includes("recompensa")) {
+                    window.location.href = "/logros/";
+                } else if (comando.includes("panel") || comando.includes("control") || comando.includes("administración") || comando.includes("admin")) {
+                    window.location.href = "/panel_admin/";
+                } else if (comando.includes("cerrar sesión") || comando.includes("salir") || comando.includes("desconectar")) {
+                    window.location.href = "/logout_custom/"; 
+                } else {
+                    comandoValido = false;
+                    setTimeout(() => {
+                        if(intencionMicrofonoGlobal && !esperandoInteraccion) {
+                            btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-microphone text-xl animate-pulse"></i><span> Escuchando...</span>';
+                        }
+                    }, 2000);
+                }
+            };
+
+            // SI CHROME LO BLOQUEA, ENTRA AQUÍ
+            reconocimientoGlobal.onerror = function(event) {
+                if (event.error === 'not-allowed') {
+                    console.warn("Chrome bloqueó el auto-inicio por seguridad. Requiere un clic.");
+                    esperandoInteraccion = true;
+                    // Ponemos el botón en color Naranja
+                    btnAccesibilidadGlobal.style.backgroundColor = "#f59e0b"; 
+                    btnAccesibilidadGlobal.style.borderColor = "#f59e0b";
+                    btnAccesibilidadGlobal.style.color = "#ffffff";
+                    btnAccesibilidadGlobal.innerHTML = '<i class="fas fa-hand-pointer animate-bounce"></i><span> Clic en pantalla para reanudar</span>';
+                }
+            };
+
+            reconocimientoGlobal.onend = function() {
+                if (intencionMicrofonoGlobal && !esperandoInteraccion) {
+                    try { reconocimientoGlobal.start(); } catch(e) {}
+                } else if (!intencionMicrofonoGlobal) {
+                    btnAccesibilidadGlobal.style.backgroundColor = "rgba(30, 41, 59, 0.9)";
+                    btnAccesibilidadGlobal.style.borderColor = "#10b981";
+                    btnAccesibilidadGlobal.style.color = "#10b981";
+                    btnAccesibilidadGlobal.innerHTML = contenidoOriginalBotonGlobal;
+                }
+            };
+        }
+
+        // 1. AUTO-ARRANQUE AL CARGAR PÁGINA NUEVA
+        window.addEventListener('load', () => {
+            if (intencionMicrofonoGlobal && reconocimientoGlobal) {
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            }
+        });
+
+        // 2. DESPERTADOR CON CUALQUIER CLIC (Evade el bloqueo)
+        document.addEventListener('click', () => {
+            if (esperandoInteraccion && intencionMicrofonoGlobal) {
+                try { reconocimientoGlobal.start(); } catch(e) {}
+            }
+        });
+
+        // 3. DESPERTADOR CON CUALQUIER TECLA
+        document.addEventListener('keydown', (event) => {
+            // Ignoramos la F y la J para que no se cruce con el apagado manual
+            if (event.key.toLowerCase() !== 'f' && event.key.toLowerCase() !== 'j') {
+                if (esperandoInteraccion && intencionMicrofonoGlobal) {
+                    try { reconocimientoGlobal.start(); } catch(e) {}
+                }
+            }
+        });
+
+        // 4. CONTROL MANUAL F+J
+        document.addEventListener('keydown', function(event) {
+            if (event.repeat) return; 
+            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
+            
+            teclasActivasGlobal[event.key.toLowerCase()] = true;
+
+            if (teclasActivasGlobal['f'] && teclasActivasGlobal['j']) {
+                event.preventDefault(); 
+                
+                if (!intencionMicrofonoGlobal) {
+                    intencionMicrofonoGlobal = true;
+                    sessionStorage.setItem('microfonoInmortal', 'true');
+                    try { reconocimientoGlobal.start(); } catch(e) {}
+                } else {
+                    intencionMicrofonoGlobal = false;
+                    esperandoInteraccion = false;
+                    sessionStorage.setItem('microfonoInmortal', 'false');
+                    reconocimientoGlobal.stop();
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            teclasActivasGlobal[event.key.toLowerCase()] = false;
+        });
+    </script>
+
 </body>
 </html>
